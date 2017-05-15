@@ -1,2 +1,0 @@
-# EbolaML
-Ebola Outcome Prediction 
