@@ -81,7 +81,7 @@ Finally, for simplicity, we retained the imputation by mean option.
 
 2.3
 
-Preprocessing and feuture selection
+Preprocessing and feature selection
 
 The dataset has two set of features: the first one concerns information and measurements gathered at arrival, in the Ebola Treatment Center (ETC), and the
 2
@@ -94,7 +94,7 @@ model.
 
 2.4
 
-Feuture engineering
+Feature engineering
 
 A case of interest for health experts is the difference between prediction models
 among different locations and different periods on time, i.e. population selection. This allows to see the evolution of the virus over time (observe eventual
