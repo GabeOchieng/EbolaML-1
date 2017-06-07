@@ -731,7 +731,7 @@ the referral time of patients was pretty low.
 
 5
 
-Limitation
+Limitations
 
 As mentioned earlier, we have an imbalance dataset. Although we did our best
 to balance things out (by using the class-weight parameter of classifiers), the
