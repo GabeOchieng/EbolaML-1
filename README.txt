@@ -28,7 +28,7 @@ EVD is a heterogeneous disease with outcomes ranging from asymptomatic to
 fatal (60% fatality rate).
 Thus, we need efficient and robust methods for diagnostic and prognostic
 triage and this is where technology can be of great help.
-As Ebola preferentially spreads in the context of poor healthcare infrastructure, it is critical that triage tools are cheap and easy to implement. Current
+As Ebola preferentially spreads in the context of poor health-care infrastructure, it is critical that triage tools are cheap and easy to implement. Current
 state-of-art solutions are both rare and limited. Hartley et al.[3] proposed a
 scoring system for triage which is based in statistical modeling. The major limitation is due to the fact that this score is static and is thus unable to adapt to
 1
@@ -36,7 +36,7 @@ scoring system for triage which is based in statistical modeling. The major limi
 advances in clinical management, changes in patient behaviour or viral evolution. A Machine-learning based solution intrinsically takes these changes into
 account and it’s performance generally improves as more data is available.
 We propose a solution via a machine learning smartphone app, which uses
-symptoms to predict the risk of a person being EVD+ (diagnosis) andin the case
+symptoms to predict the risk of a person being EVD+ (diagnosis) and in the case
 that they are EVD+, their risk of mortality (prognosis). This will improve both
 resource management and the precision of EVD+ detections which in turn slows
 down the propagation rate of EVD. This solution is cheap, highly portable and
@@ -69,10 +69,10 @@ results.
 
 Missing data and imputation
 
-The four following features contain missing values : referral time (i.e. the time
-taken for the patient to present at an Ebola treatment centre since their first
-symptom), evd ct (inversely proportional to viral load in patien’s body), malaria
-infection and quarantine.
+The four following features contain missing values : referral time (i.e. the
+time taken for the patient to present at an Ebola treatment centre since their
+first symptom), evd ct (inversely proportional to viral load in patient’s body),
+malaria infection and quarantine.
 We used MissMech library from R, by Jamshidian et al., to asses if missing
 values are MCAR (Missing Completely At Random), a necessary condition in
 order to use Multiple Imputation techniques as MICE and the hypothesis of
@@ -88,7 +88,7 @@ that appear the most frequently (for binary and categorical features) and simply
 takes the mean for features with continuous values.
 The results on classification, for the three imputation techniques used, were
 very similar. This can be explained by the relatively low proportion of missing values, and the fact that the concerned features were not among the most
-prevalent for the classification. Additionally, Hartley et al. [3] previously reported these features to be missing completely at randomc The fact that 2/3
+prevalent for the classification. Additionally, Hartley et al. [3] previously reported these features to be missing completely at random. The fact that 2/3
 of features with missing values were binary variables can also explain the small
 difference between different imputation techniques. Finally, for simplicity and
 computation speed, we retained the imputation by the most frequent element
@@ -128,19 +128,18 @@ A case of interest for health experts is the difference between prediction model
 across geographic locations and varying time periods, i.e. population selection.
 This allows us to highlight the nuances in health-care seeking behaviour and
 public health infrastructure across regions or the evolution of the virus over
-time (to observe eventual virus mutations). Additionally, it helps to adjust the
-treatment with the specificities of each region. To integrate this ability in our
-model, we artificially added a location categorical feature and an entry date
-feature to the dataset:
+time (to observe eventual virus mutations). Additionally, it also helps to adjust the treatment with the specificities of each region. The GOAL dataset we
+used didn’t have any location or date related feature. Therefore, to integrate
+this ability in our model, as a proof of concept, we artificially added a location
+categorical feature and date feature(s) to the dataset:
 For the location feature, using Numpy’s random.choice function, we attributed
 a location (from an array of most prevalent locations) to each patient. The
 locations could not be attributed to individual patients due to patient privacy and protection of data anonymity. Then, to be able to use this information in our prediction models, we used the DictVectorizer package from
 Sklearn.feature extraction library which allows us to add as many binary features as we have distinct locations. For each patient, only one of the newly
 created binary features has a value of 1. A population is then selected corresponding to a specific location with which we create prediction model.
-For the entry-date feature, we used Pandas Timestamp to artificially create
-dates between two given dates, we generated dates from March 2013 to March
-2016 corresponding to biggest Ebola outbreak. We can then filter the dataset
-by taking the date(s) specified by entrydateFilter and enddateFilter.
+For the date features, we used Pandas Timestamp to artificially create entrydate and end-date between two fixed dates: we generated dates from March
+2013 to March 2016 corresponding to biggest Ebola outbreak. We can then
+filter the dataset by taking the date(s) specified by entrydateFilter and (optionally) enddateFilter.
 To account for different filtering possibilities, we created the ’filtering’ variable. Here are possible values :
 • 0 : No filtering
 • 1 : Filtering only the location
@@ -157,15 +156,16 @@ For our prediction model on prognosis, we have tried five common Machine
 learning classification algorithms:
 • Logistic Regression : a linear model which finds the best coefficient (weight)
 for each feature that, when combined linearly, explain data the best.
-• KNN (k-nearest neighbors ) : an object is classified by a majority vote of
-its neighbors, with the object being assigned to the class most common
-among its k nearest neighbors
+
 4
 
-• SVM : classifies by using an optimal linear separating hyperplane by using
+• KNN (k-nearest neighbors ) : an object is classified by a majority vote of
+its neighbors, with the object being assigned to the class most common
+among its k nearest neighbors
+• SVM : classifies by using an optimal linear separating hyperplane by using
 maximal margin classifier.
 • Random Forest : averages the prediction of many decision trees (classifies
-by organising data features in form of a tree)
+by organizing data features in form of a tree)
 • Neural Networks : are organized in a series of layers, where the input
 vector enters at the left side of the network, which is then projected to
 a “hidden layer.” Each unit in the hidden layer is a weighted sum of the
@@ -187,11 +187,13 @@ can leak to the model and even contribute to over-fitting. In presence of large
 number of models the risk for over-fitting increases and the performance estimated by cross validation is no longer an effective estimate of generalization.
 To avoid this, for our hyper-parameter optimization, we proceed in two steps.
 First we did Hold-out validation, which splits the dataset into a training and
-testing portions . Hold-out is also biased if done once therefore we did 10’000
-random Hold-outs, independently, given by different seeds of train test split
-function. We used 15% as test size. In the second step, we used GridSearchCV
-with 10-folds to confirm the results from first part by exhaustive consideration
-of all parameters’ permutations.
+testing portions . Hold-out is also biased (as train/test splits are obtained by a
+random shuffle of the data and the process is run only once, we can, for example,
+obtain by chance a ’favorable’ shuffle which gives very high classification score)
+if done once therefore we did 10’000 random Hold-outs, independently, given
+by different seeds of train test split function. We used 15% as test size. In the
+second step, we used GridSearchCV with 10-folds to confirm the results from
+first part by exhaustive consideration of all parameters’ permutations.
 
 2.7
 
@@ -202,15 +204,14 @@ the classifier (Accuracy, Balanced Error Rate (BER), F-1 measure, Matthews
 Correlation coefficient (M.C.C), etc.).
 We have chosen to work with M.C.C as main metric for this project : it takes
 into account true and false positives and negatives and is generally regarded as
-a balanced measure which can be used even if the classes are of very different
+5
+
+a balanced measure which can be used even if the classes are of very different
 sizes, which is our case. It returns a value between 1 and +1. A coefficient of
 +1 represents a perfect prediction, 0 no better than random prediction and 1
 indicates total disagreement between prediction and observation. It’s obtained
 as follows:
-
-5
-
-M.C.C = p
+M.C.C = p
 
 TP ∗ TN + FP ∗ FN
 (T P + F P )(T P + F N )(T N + F P )(T N + F N )
@@ -259,13 +260,12 @@ and decision tree graphs. To illustrate an example for the feature selection, he
 is the plot of the coefficients of all features obtained from the Logistic Regression
 model. Before fitting the model, we standardized the data so the representation
 is more meaningful. The second plot shows the MCC score when a single feature
-is used for Logistic Regression. We can observe that the the plots don’t have the
-same trend. While some features, amongst all others, are important for classification, this is not anymore the case when they are taken individually.It would
-be intressting to observe the behaviour in other scenarios like classification on
-
 6
 
-all feature except one specific feature, etc. But since we didn’t obtained good
+is used for Logistic Regression. We can observe that the the plots don’t have the
+same trend. While some features, amongst all others, are important for classification, this is not anymore the case when they are taken individually.It would
+be interesting to observe the behaviour in other scenarios like classification on
+all feature except one specific feature, etc. But since we didn’t obtained good
 results with these methods (See Result section), we didn’t explore it further.
 
 (a) Coefficients of Logistic Regression
@@ -280,13 +280,17 @@ Figure 1: Feature importance
 Population Selection
 
 For the population selection part, as we generated the data randomly for the
-locations and entry data, any plot or result will be of little help. We just implemented it as proof of concept. In the presence of real data, they can be studied
-from various perspectives and can help health mangers to work accordingly. For
+locations and dates, any plot or result will be of little help. We just implemented
+it as proof of concept. In the presence of real data, they can be studied from
+various perspectives and can help health mangers to work accordingly. For
 example, it would be of interest to do a feature ranking study as we have done
 in our project to compare the most relevent symptoms for different locations or
 periods of time.
-In order to avoid the overfitting caused by adding some new features for population selection, once the filtering/selction was done, we removed all those features
-related to location and entry data.
+In order to avoid the overfitting caused by adding the binary features (added for
+categorical location feature) for population selection, once the filtering/selection
+was done, we removed all features (binary features created for location, the
+categorical location feature and entry-date and end-date features) related to
+location or dates.
 
 3.3
 
@@ -364,8 +368,6 @@ Classical Logistic Regression
 
 For Logistic regression we analyzed following parameters: C (inverse of regularization strength), number of iterations, type of solver and the Class-weight : to
 balance the two classes , Penalty : L1 or L2
-At first, We ran several simulations and we observed that L2 regularization
-performs often slightly better than L1.Then we tried also different optimization
 
 8
 
@@ -374,7 +376,9 @@ NN
 0.749
 0.750
 
-solver algorithms (default liblinear, newton, lbfgs and Stochastic Average Gradient(sag) ). Sag largely outperformed all other solvers. The left plot below
+At first, We ran several simulations and we observed that L2 regularization
+performs often slightly better than L1.Then we tried also different optimization
+solver algorithms (default liblinear, newton, lbfgs and Stochastic Average Gradient(sag) ). Sag largely outperformed all other solvers. The left plot below
 shows the performance of different solvers over different random seeds used to
 split the data in train and test using train test split from Sklearn. Note that
 liblinear and lbgfs give almost the same results here and that’s why the blue
@@ -577,22 +581,33 @@ training error due to under-fitting.There exist some empirically-derived rulesof
 is usually between the size of the input and size of the output layers. Another,
 more precise, rule-of-thumb suggests that the size of hidden layers should be
 around two third of the input layer size. We ran the neural network with 0
-(not plotted) to 4 hidden layers, always keeping same number of nodes for each
-hidden layer, and varying from 1 to 40 nodes. Here are the results:
+(not plotted) to 4 hidden layers and varying the number of nodes from 1 to
+
 13
 
-Figure 6: Performance of various hidden layers
+40 (always keeping same number of nodes for all hidden layers). Here are the
+results:
 
-From various runs (different initial weights), we observed that one hidden
-layer with around 26 nodes gives the usually the best score and other configurations don’t significantly improve the performance. Another reason to use 1
-hidden layer is that it’s computationally lighter.
+Figure 6: Performance of various hidden layers
+
+We observe that the results are very unstable and there is no specific trend.
+Therefore it’s impossible to conclude anything on the the optimal number of
+hidden layers and nodes. The apparent lack of stability and predictability is
+a drawback for this model and might be a consideration (However, as detailed
+in Result section, the results of the chosen model were consistent and stable
+through various simulations). From various runs (different initial weights), we
+observed that one hidden layer with around 26 nodes gives usually amongst the
+best scores and other configurations don’t significantly improve the performance.
+Furthermore as this configuration just uses one hidden layer it’s computationally lighter so that’s what we chose for our final NN model.
 We also tried different activation functions (the rectified linear unit function, the hyperbolic tan function and the logistic sigmoid function). The same
 setup as above was run several times and we observed that the tanh activation
 function usually performs better than others (only slightly better than logistic).
 In addition, in order to avoid over-fitting, we also checked various regularization terms (0.001,0,01,0.1 and 1) through various runs and we found that, on
 average, there was no significant difference among them.
 
-3.10
+14
+
+3.10
 
 Ensemble Learning
 
@@ -603,10 +618,7 @@ algorithm, we decided to combine all of them to create other models. We created
 Voting)
 2. 4 Bagging models using the estimated probability of the outcomes for our
 5 optimized models (Averaging probabilities)
-
-14
-
-3. 2 ’Blending’ models, applying a Logistic regression on the prediction and
+3. 2 ’Blending’ models, applying a Logistic regression on the prediction and
 estimated probability of the 5 optimized models
 For the two first categories, for each patient, we took the prediction (1 or 0)
 and the predicted probability, respectively, of our 5 models and decided 1 or
@@ -634,14 +646,14 @@ Discussion
 
 Let’s first box-plot the result of our classifiers.
 
-(a) M.C.C score of each classification algorithm
+15
+
+(a) M.C.C score of each classification algorithm
 
 (b) Running time of each algorithm
 
 First of all, for the 5 optimized models, we observe that in terms of classification performance (as represented by MCC), there is not a huge difference among
-15
-
-different models. However, Logistic Regression and Neural Networks classifiers
+different models. However, Logistic Regression and Neural Networks classifiers
 consistently perform better than the three other models, with the former being
 usually slightly better. On the other hand, in terms of running time Random
 Forest and Neural Networks are computationally heavy and take a considerably
@@ -667,12 +679,13 @@ we have spent extensive time optimizing each of the models to best tailor them
 for our problem and, second and more importantly the dataset is relatively
 ’well-behaved’ and doesn’t have particularities like non-linearity or other characteristics. We mean the type of characteristics which create a bigger difference
 on the choice of the classification algorithm.
-Now let’s have a look at all models including the ensemble models. This is
-the average of 10’000 seeds from train test split:
 
 16
 
-Figure 8: Classification algorithms and bagging models
+Now let’s have a look at all models including the ensemble models. This is
+the average of 10’000 seeds from train test split:
+
+Figure 8: Classification algorithms and bagging models
 
 We are happy to observe that more than half of the bagging models performed better than the best classification algorithm (LR) alone. It’s interesting
 to notice that the remaining bagging models (in particular the simple bagging,
@@ -692,11 +705,11 @@ Now below are the results on after-triage model (left) and the model with
 chosen features (right).
 As expected, the after-triage model performs better than triage model. This
 is because the symptoms have now become more evident and it helps to predict
-the outcome.
-We can also observe that the model with chosen features is not very performant.Among all techniques used, none of them performed well comparing to
 17
 
-the complete model.
+the outcome.
+We can also observe that the model with chosen features is not very performant.Among all techniques used, none of them performed well comparing to
+the complete model.
 
 (a) Performance of classification algorithm
 on after triage
@@ -705,11 +718,69 @@ on after triage
 give by mentionned techniques (RFE, RF, etc.)
 
 Finally, compared to the Harvard models, we obtain a better result on our
-dataset. This is logical since we have trained our models on (part) our dataset
-and optimized it consequently. In order to compare objectively our model with
-the Harvard model, we should evaluate them on another independent dataset.
+dataset. Technically, this is logical since we have trained our models on (part)
+our dataset and optimized it consequently. In order to compare objectively our
+model with the Harvard model, we should evaluate them on another independent dataset.
+There are also clinical reasons that explain why our model outperforms the Harvard model: Harvard’s dataset was a heterogeneous set of confounding/modifying
+factors that dilute the predictive capacity of individual features whereas our
+dataset was homogeneous and all data was coming from the same ETC. Also,
+Harvard’s dataset was gathered with a wide temporal span, during which time
+the clinical response was erratic and the virus evolved to favor a less virulent
+strain whereas our dataset was collected right at the end of the epidemic where
+the referral time of patients was pretty low.
 
+5
+
+Limitation
+
+As mentioned earlier, we have an imbalance dataset. Although we did our best
+to balance things out (by using the class-weight parameter of classifiers), the
+classification error is not yet perfectly balanced between two classes. Namely,
+as expected, we classify better the death cases. To illustrate this, we ran 10000
+runs (with various data splitting seeds) on the Logistic Regression model each
+time recording the F1-Score for each class: We obtain an average F1-score of
+0.851 for class 0 and 0.899 for class 1. So we more often misclassify class 0.
+This is acceptable. We prefer to have false positives rather than false negatives
+but it’s something to be aware of.
+Additionally, we recommend using the population selection tool(when needed
 18
+
+information will be available) when using the app in a new ’environment’ (different country, different period).
+
+6
+
+Conclusion
+
+This study investigates some of the most widely used machine learning classification algorithms in order to classify the outcome (death or no) of EVD+
+patients. Our final model has a high prediction precision and can aid objective
+clinical prioritization.
+Based on our results and considering the need of a model which is understandable for the medical team and does not only operate as a black-box giving a high
+classification score, we would recommend the use of the Regularized Logistic regression (RLR) model for this classification task. Taken individually (without
+bagging models), RLR always obtain the best classification score, it performs
+only slightly less better than the best bagging model, it’s running time is quite
+low, it’s a simple model which is easy to setup and to understand, it’s results
+are stable and we can obtain nice insights about the model by analyzing it via
+feature importance plots (as in Figure 1).
+
+7
+
+Perspectives
+
+External validation of our model is needed in order to further improve its accuracy and relevance. Furthermore, collecting data regarding geographical location and entry date of patients in the ETC can, first, improve the model’s
+accuracy and relevance, and second, contribute to put our concept of population
+selection into practice. This is of particular interest for medical team. Finally,
+integrating the machine learning model into the Android app and interaction of
+the app with a centralized server (for updating data about patients and updating
+the ML models in the app) remains to be done.
+
+8
+
+Acknowledgments
+
+I would like to thank my supervisors Dr. Hartley and Dr Jaggi for their precious
+help and for enabling me to work on such an interesting project.
+
+19
 
 References
 [1] Outbreaks Chronology: Ebola Virus Disease
@@ -722,6 +793,6 @@ Ebola Virus Disease PLoS Neglected Tropical Disease. 2017.
 [4] Thais Mayumi Oshiro, Pedro Santoro Perez, and Jose Augusto Baranauskas.
 How Many Trees in a Random Forest? University of Sao Paulo. 2012.
 
-19
+20
 
 
